@@ -4,8 +4,8 @@ import librosa
 import numpy as np
 from keras.models import model_from_json
 from sklearn.preprocessing import StandardScaler
-
-
+from keras.utils.data_utils import get_file
+import urllib.request
 ROOT_DIR = '/content'
 number_of_mfcc = 40
 frames = 87
@@ -16,7 +16,14 @@ def load_model_json(dir_path,model_name):
   loaded_model_json = json_file.read()
   json_file.close()
   loaded_model = model_from_json(loaded_model_json)
-  loaded_model.load_weights(os.path.join(dir_path, (model_name + '.h5')))
+
+  response = urllib.request.urlopen("https://elasticbeanstalk-us-east-2-210896727642.s3.us-east-2.amazonaws.com/mfcc_model_2.h5")
+  model_weights = response.read()
+  with open(os.path.join(dir_path, model_name + '.h5'),'wb') as f:
+      f.write(model_weights)
+  # os.path.join(dir_path, model_name + '.h5')
+
+  loaded_model.load_weights(os.path.join(dir_path, model_name + '.h5'))
 
   return loaded_model
 
